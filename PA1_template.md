@@ -7,7 +7,8 @@ output:
 
 
 ## Loading and preprocessing the data
-```{r}
+
+```r
 # unzipping the data
 if (!file.exists('activity.csv')) {
       unzip(zipfile = "activity.zip")
@@ -15,15 +16,14 @@ if (!file.exists('activity.csv')) {
 
 # reading the data
 activityData <- read.csv(file="activity.csv", header=TRUE)
-
-
 ```
 
 
 
 
 ## What is mean total number of steps taken per day?
-```{r}
+
+```r
 # Calculate the total steps taken per day
 totSteps <- aggregate(steps ~ date, activityData, FUN=sum)
 
@@ -32,8 +32,11 @@ hist(totSteps$steps,
      main = "Total Steps per Day",
      xlab = "Number of Steps",
      col='cornflowerblue')
-     
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
+```r
 # Calculate and report the mean steps taken per day
 meanSteps <- mean(totSteps$steps, na.rm = TRUE)
 
@@ -42,12 +45,24 @@ medianSteps <- median(totSteps$steps, na.rm = TRUE)
 
 
 print(paste("Mean steps per day:",meanSteps))
+```
+
+```
+## [1] "Mean steps per day: 10766.1886792453"
+```
+
+```r
 print(paste("Median steps per day:",medianSteps))
+```
+
+```
+## [1] "Median steps per day: 10765"
 ```
 
 
 ## What is the average daily activity pattern?
-```{r}
+
+```r
 # Make a time-series plot of the 5-minute interval and the average number of
 # steps taken, averaged acoss all days.
 
@@ -61,23 +76,38 @@ ggplot(data = meanStepsByInt, aes(x = interval, y = steps)) +
   xlab("5-minute Interval") +
   ylab("Average Number of Steps") +
   theme(plot.title = element_text(hjust = 0.5))
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
+```r
 # Which 5-minute interval across all days contain the maximum number of steps
 maxInterv <- meanStepsByInt[which.max(meanStepsByInt$steps),]
 maxInterv
 ```
 
+```
+##     interval    steps
+## 104      835 206.1698
+```
+
 ## Imputing missing values
 
 1. Calculate and report the total number of missing values in the dataset
-```{r}
+
+```r
 # counting the number of missing values
 missingVals <- sum(is.na(activityData$steps))
 print(paste('No.of missing values=',missingVals))
 ```
 
+```
+## [1] "No.of missing values= 2304"
+```
+
 2. Forming a strategy
-```{r}
+
+```r
 # Find the NA positions
 naPos <- which(is.na(activityData$steps))
 
@@ -86,7 +116,8 @@ meanVector <- rep(mean(activityData$steps, na.rm=TRUE), times=length(naPos))
 ```
 
 3. Creating a new data-set by filling missing values
-```{r}
+
+```r
 # Replace the NAs by the means
 activityData[naPos, "steps"] <- meanVector
 
@@ -94,8 +125,19 @@ activityData[naPos, "steps"] <- meanVector
 head(activityData)
 ```
 
+```
+##     steps       date interval
+## 1 37.3826 2012-10-01        0
+## 2 37.3826 2012-10-01        5
+## 3 37.3826 2012-10-01       10
+## 4 37.3826 2012-10-01       15
+## 5 37.3826 2012-10-01       20
+## 6 37.3826 2012-10-01       25
+```
+
 4.Make a histogram of the total number of steps taken each day and calculate and report the **mean** and **median** total number of steps taken per day.
-```{r}
+
+```r
 # Compute the total number of steps each day (NA values removed)
 totData <- aggregate(activityData$steps, by=list(activityData$date), FUN=sum)
 
@@ -109,15 +151,32 @@ hist(totData$total,
      xlab="Total number of steps", 
      ylim=c(0, 30), 
      main="Histogram of the imputed total number of steps taken each day")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+
+```r
 newMean<-mean(totData$total)
 newMedian<-median(totData$total)
 print(paste("Mean steps per day:",newMean))
+```
+
+```
+## [1] "Mean steps per day: 10766.1886792453"
+```
+
+```r
 print(paste("Median steps per day:",newMedian))
+```
+
+```
+## [1] "Median steps per day: 10766.1886792453"
 ```
 Due to the imputation **mean** estimates did not changed, but **median** estimates did changed.
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r}
+
+```r
 # Create a new factor variable in the dataset with two levels - "weekend" and "weekday"
 DayType <- function(date) {
   day <- weekdays(date)
@@ -144,3 +203,5 @@ ggplot(data = meanStepsByDay, aes(x = interval, y = steps)) +
   ylab("Average Number of Steps") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
